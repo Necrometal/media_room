@@ -14,7 +14,7 @@ class PlaylistItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: const Color.fromARGB(59, 7, 147, 169),
+      color: cyantranparent,
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: 10,
@@ -91,7 +91,6 @@ class PlaylistItem extends StatelessWidget {
                     child: IconButton(
                       splashRadius: 15,
                       icon: const Icon(
-                        // CupertinoIcons.heart,
                         CupertinoIcons.play,
                         size: 17,
                         color: Colors.white,
