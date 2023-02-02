@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:media_room/src/observer/playlist_observer.dart';
 import 'package:media_room/src/widgets/bottom_navigation_bar.dart';
 
 void main() {
+  Bloc.observer = PlaylistObserver();
   runApp(const MyApp());
 }
 
