@@ -22,27 +22,27 @@ class _MediaPlaylistPageState extends State<MediaPlaylistPage> {
   late List<Media> previousList = [];
   late Map<String, dynamic> action;
 
-  void animateItem(
-    Map<String, dynamic> action,
-    List<Media> listMedia
-  ){
-    switch(action['action']){
-      case PlaylistItemAction.add:
-        mediaKey.currentState!.insertItem(action['index']);
-        break;
-      case PlaylistItemAction.delete:
-        mediaKey.currentState!.removeItem(
-          action['index'],
-          (BuildContext ctxAnimate, Animation<double> animation) => buildItem(
-            action['item'],
-            action['index'],
-            animation,
-            () => {}
-          )
-        );
-        break;
-    }
-  }
+  // void animateItem(
+  //   Map<String, dynamic> action,
+  //   List<Media> listMedia
+  // ){
+  //   switch(action['action']){
+  //     case PlaylistItemAction.add:
+  //       mediaKey.currentState!.insertItem(action['index']);
+  //       break;
+  //     case PlaylistItemAction.delete:
+  //       mediaKey.currentState!.removeItem(
+  //         action['index'],
+  //         (BuildContext ctxAnimate, Animation<double> animation) => buildItem(
+  //           action['item'],
+  //           action['index'],
+  //           animation,
+  //           () => {}
+  //         )
+  //       );
+  //       break;
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -59,8 +59,8 @@ class _MediaPlaylistPageState extends State<MediaPlaylistPage> {
 
         listMedia = context.select((PlaylistBloc bloc) => bloc.state.playlist);
         action = context.select((PlaylistBloc bloc) => bloc.state.action);
-
-        animateItem(action, listMedia);
+        // print(test.state);
+        // animateItem(action, listMedia);
 
         return PageContainer(
           child: Scaffold(
@@ -75,23 +75,27 @@ class _MediaPlaylistPageState extends State<MediaPlaylistPage> {
             body: BodyPageContainer(
               child: Stack(
                 children: <Widget>[
-                  // ListView.builder(
-                  //   itemCount: list.length,
-                  //   itemBuilder: (context, index) {
-                  //     final item = list[index];
-                  //     return PlaylistItem(item: item, index: index);
-                  //   },
-                  // ),
-                  AnimatedList(
-                    key: mediaKey,
-                    initialItemCount: listMedia.length,
-                    itemBuilder: (ctxAnimation, index, animation) => buildItem(
-                      listMedia[index],
-                      index,
-                      animation,
-                      _deleteFile
-                    ),
+                  ListView.builder(
+                    itemCount: listMedia.length,
+                    itemBuilder: (context, index) {
+                      final item = listMedia[index];
+                      return PlaylistItem(
+                        item: item, 
+                        index: index,
+                        deleteFile: _deleteFile,
+                      );
+                    },
                   ),
+                  // AnimatedList(
+                  //   key: mediaKey,
+                  //   initialItemCount: listMedia.length,
+                  //   itemBuilder: (ctxAnimation, index, animation) => buildItem(
+                  //     listMedia[index],
+                  //     index,
+                  //     animation,
+                  //     _deleteFile
+                  //   ),
+                  // ),
                   Stack(
                     alignment: Alignment.bottomCenter,
                     children: <Widget>[
