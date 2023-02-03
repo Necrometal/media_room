@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/painting.dart';
 
 class Media extends Equatable {
   const Media({
@@ -56,4 +57,26 @@ class MediaTmp{
       albumArt: albumArt
     );
   }
+}
+
+ImageProvider imagePlayer(
+  Media? item,
+  String imagePath
+){
+  if(item != null && item.albumArt != null){
+    return MemoryImage(item.albumArt as Uint8List);
+  }else{
+    return AssetImage(imagePath);
+  }
+}
+
+String artisteName(Media? item){
+  if(item == null) return 'Artist';
+  if(item.artist != null) return item.artist as String;
+  return 'Unknown artist';
+}
+
+String titleName(Media? item){
+  if(item == null) return 'Title';
+  return item.name;
 }

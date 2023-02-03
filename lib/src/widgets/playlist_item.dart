@@ -36,7 +36,7 @@ class PlaylistItem extends StatelessWidget {
             final time = context.select((PlayerBloc bloc) => bloc.state.duration);
             final timelines = current == item ? formatListItemLine(time, 120) : 0.0;
             final maxDuration = formatTimer(item.trackDuration ?? 0);
-            
+
             void _play(Media item){
               if(current != item){
                 context.read<PlayerBloc>().add(PlayerStarted(
@@ -136,8 +136,10 @@ class PlaylistItem extends StatelessWidget {
                             width: 25,
                             child: IconButton(
                               splashRadius: 15,
-                              icon: const Icon(
-                                CupertinoIcons.play,
+                              icon: Icon(
+                                current == item && playerState is PlayerRunInProgress
+                                  ? CupertinoIcons.pause_solid
+                                  : CupertinoIcons.play,
                                 size: 17,
                                 color: Colors.white,
                               ),

@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -98,7 +96,7 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(30),
                         child: Image(
-                          image: imagePlayer(current),
+                          image: imagePlayer(current, 'lib/src/assets/images/music-2.jpg'),
                         ),
                       ),
                       Container(
@@ -255,23 +253,4 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
       },
     );
   }
-}
-
-ImageProvider imagePlayer(Media? item){
-  if(item != null && item.albumArt != null){
-    return MemoryImage(item.albumArt as Uint8List);
-  }else{
-    return const AssetImage('lib/src/assets/images/music.jpg');
-  }
-}
-
-String artisteName(Media? item){
-  if(item == null) return 'Artist';
-  if(item.artist != null) return item.artist as String;
-  return 'Unknown artist';
-}
-
-String titleName(Media? item){
-  if(item == null) return 'Title';
-  return item.name;
 }
