@@ -39,7 +39,6 @@ class PlaylistBloc extends Bloc<PlaylistEvent, PlaylistState> {
       }
 
       return emit(state.copyWith(
-        current: state.current,
         playlist: List.of(state.playlist)..add(media.copyToReal()),
         action: {
           'action': PlaylistItemAction.add,
@@ -55,7 +54,6 @@ class PlaylistBloc extends Bloc<PlaylistEvent, PlaylistState> {
     final removedItem = playlist.removeAt(event.index);
 
     return emit(state.copyWith(
-      current: state.current,
       playlist: List.of(playlist),
       action: {
         'action': PlaylistItemAction.delete,

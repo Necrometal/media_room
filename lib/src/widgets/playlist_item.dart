@@ -32,17 +32,28 @@ class PlaylistItem extends StatelessWidget {
         return BlocBuilder<PlayerBloc, PlayerState>(
           buildWhen: (prev, state) => prev.runtimeType != state.runtimeType,
           builder: (context, playerState){
+            final current = context.select((PlayerBloc bloc) => bloc.state.current);
             final time = context.select((PlayerBloc bloc) => bloc.state.duration);
             final timelines = formatListItemLine(time, 120);
             final maxDuration = formatTimer(item.trackDuration ?? 0);
 
-            void _play(){
-              if(playerState is PlayerInitial){
-                context.read<PlayerBloc>().add(PlayerStarted(duration: playerState.duration));
-              }else if(playerState is PlayerRunPause){
-                context.read<PlayerBloc>().add(const PlayerResumed());
-              }else if(playerState is PlayerRunInProgress){
-                context.read<PlayerBloc>().add(const PlayerPaused());
+            void _play(Media item){
+              if(current != item){
+                context.read<PlayerBloc>().add(PlayerStarted(
+                  duration: 0,
+                  current: item
+                ));
+              }else{
+                if(playerState is PlayerInitial){
+                  context.read<PlayerBloc>().add(PlayerStarted(
+                    duration: 0,
+                    current: item
+                  ));
+                }else if(playerState is PlayerRunPause){
+                  context.read<PlayerBloc>().add(const PlayerResumed());
+                }else if(playerState is PlayerRunInProgress){
+                  context.read<PlayerBloc>().add(const PlayerPaused());
+                }
               }
             }
 
@@ -130,7 +141,7 @@ class PlaylistItem extends StatelessWidget {
                                 size: 17,
                                 color: Colors.white,
                               ),
-                              onPressed: _play,
+                              onPressed: () => _play(item),
                             ),
                           ),
                           SizedBox(

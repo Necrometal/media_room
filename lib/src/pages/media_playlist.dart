@@ -59,8 +59,6 @@ class _MediaPlaylistPageState extends State<MediaPlaylistPage> {
 
         listMedia = context.select((PlaylistBloc bloc) => bloc.state.playlist);
         action = context.select((PlaylistBloc bloc) => bloc.state.action);
-        // print(test.state);
-        // animateItem(action, listMedia);
 
         return PageContainer(
           child: Scaffold(

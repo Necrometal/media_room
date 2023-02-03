@@ -9,9 +9,11 @@ abstract class PlayerEvent extends Equatable {
 
 class PlayerStarted extends PlayerEvent {
   const PlayerStarted({
-    required this.duration
+    required this.duration,
+    required this.current
   });
   final int duration;
+  final dynamic current;
 }
 
 class PlayerPaused extends PlayerEvent {

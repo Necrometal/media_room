@@ -9,7 +9,6 @@ class PlaylistState extends Equatable {
 
   const PlaylistState({
     this.playlist = const <Media>[],
-    this.current,
     this.action = const {
       'action': null,
       'index': null
@@ -17,7 +16,6 @@ class PlaylistState extends Equatable {
   });
 
   final List<Media> playlist;
-  final Media? current;
   final Map<String, dynamic> action;
 
   PlaylistState copyWith({
@@ -27,11 +25,10 @@ class PlaylistState extends Equatable {
   }){
     return PlaylistState(
       playlist: playlist ?? this.playlist,
-      current: current ?? this.current,
       action: action ?? defaultState
     );
   }
   
   @override
-  List<Object?> get props => [playlist, current, action];
+  List<Object?> get props => [playlist, action];
 }
