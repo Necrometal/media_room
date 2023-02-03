@@ -10,6 +10,8 @@ abstract class PlaylistEvent extends Equatable {
 class MediaPicked extends PlaylistEvent {}
 
 class MediaDeleted extends PlaylistEvent {
-  const MediaDeleted({required this.index});
+  const MediaDeleted({
+    required this.index
+  });
   final int index;
 }

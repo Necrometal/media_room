@@ -1,5 +1,6 @@
 enum PlaylistItemAction {
-  delete
+  delete,
+  add
 }
 
 enum MemberlistItemAction {
