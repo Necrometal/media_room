@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,6 +8,7 @@ import 'package:media_room/src/bloc/playlist_bloc.dart';
 import 'package:media_room/src/constantes/colors.dart';
 import 'package:media_room/src/custom/slider_track.dart';
 import 'package:media_room/src/helpers/format_timer.dart';
+import 'package:media_room/src/models/media.dart';
 import 'package:media_room/src/widgets/back_button.dart';
 import 'package:media_room/src/widgets/page_container.dart';
 
@@ -41,6 +44,7 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
         return BlocBuilder<PlayerBloc, PlayerState>(
           buildWhen: (prev, state) => prev.runtimeType != state.runtimeType,
           builder: (context, state) {
+            final current = context.select((PlayerBloc bloc) => bloc.state.current);
             final time = context.select((PlayerBloc bloc) => bloc.state.duration);
             final duration = formatTimer(time * 1000);
             final maxDuration = formatTimer(120 * 1000);
@@ -93,8 +97,8 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                     children: <Widget>[
                       ClipRRect(
                         borderRadius: BorderRadius.circular(30),
-                        child: const Image(
-                          image: AssetImage('lib/src/assets/images/music-2.jpg'),
+                        child: Image(
+                          image: imagePlayer(current),
                         ),
                       ),
                       Container(
@@ -102,8 +106,10 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
-                            const Text('Space Station',
-                                style: TextStyle(fontSize: 25, color: Colors.white)),
+                            Text(
+                              titleName(current),
+                              style: const TextStyle(fontSize: 25, color: Colors.white)
+                            ),
                             IconButton(
                               icon: Icon(
                                 // CupertinoIcons.heart,
@@ -118,9 +124,12 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                           ],
                         ),
                       ),
-                      const Align(
+                      Align(
                         alignment: Alignment.centerLeft,
-                        child: Text('House', style: TextStyle(color: grey)),
+                        child: Text(
+                          artisteName(current), 
+                          style: const TextStyle(color: grey)
+                        ),
                       ),
                       Expanded(
                         child: Align(
@@ -246,4 +255,23 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
       },
     );
   }
+}
+
+ImageProvider imagePlayer(Media? item){
+  if(item != null && item.albumArt != null){
+    return MemoryImage(item.albumArt as Uint8List);
+  }else{
+    return const AssetImage('lib/src/assets/images/music.jpg');
+  }
+}
+
+String artisteName(Media? item){
+  if(item == null) return 'Artist';
+  if(item.artist != null) return item.artist as String;
+  return 'Unknown artist';
+}
+
+String titleName(Media? item){
+  if(item == null) return 'Title';
+  return item.name;
 }
