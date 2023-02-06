@@ -13,7 +13,7 @@ class Media extends Equatable {
   });
 
   final String name;
-  final String? path;
+  final String path;
   final String? artist;
   final int? trackDuration;
   final String? album;
@@ -41,7 +41,7 @@ class MediaTmp{
   });
 
   String name;
-  String? path;
+  String path;
   String? artist;
   int? trackDuration;
   String? album;

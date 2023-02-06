@@ -21,6 +21,7 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
   bool liked = false;
   double timeline = 0.0;
   bool played = false;
+  static int defaultDuration = 0;
 
   void _like() {
     setState(() {
@@ -33,7 +34,14 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
       timeline = value;
     });
   }
-  
+
+  void handlePlay(BuildContext ctx, int duration, dynamic current){
+    ctx.read<PlayerBloc>().add(PlayerStarted(
+      duration: duration,
+      current: current
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<PlaylistBloc, PlaylistState>(
@@ -44,17 +52,31 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
           builder: (context, state) {
             final current = context.select((PlayerBloc bloc) => bloc.state.current);
             final time = context.select((PlayerBloc bloc) => bloc.state.duration);
-            final duration = formatTimer(time * 1000);
-            final maxDuration = formatTimer(120 * 1000);
-            final timelines = formatTimeline(time, 120);
+            final isCompleted = context.select((PlayerBloc bloc) => bloc.isCompleted);
+            final duration = formatTimer(time);
+            final maxDuration = formatTimer(current?.trackDuration ?? defaultDuration);
+            final timelines = formatTimeline(time, current?.trackDuration ?? defaultDuration);
+            final maxTimelines = double.parse((current?.trackDuration ?? defaultDuration).toStringAsFixed(1));
+            final divisions = current?.trackDuration;
+
+            void _handleCompleted(e){
+              if(playlistState.playlist.last == current){
+                context.read<PlayerBloc>().add(const PlayerReset());
+              }else{
+                handlePlay(
+                  context, 
+                  0, 
+                  playlistState.playlist[playlistState.playlist.indexOf(current as Media) + 1]
+                );
+              }
+            }
+
+            isCompleted?.onData(_handleCompleted);
 
             void _play(){
               if(state is PlayerInitial){
-                if(state.current == null && playlistState.playlist.isNotEmpty){
-                  context.read<PlayerBloc>().add(PlayerStarted(
-                    duration: state.duration,
-                    current: playlistState.playlist[0]
-                  ));
+                if(playlistState.playlist.isNotEmpty){
+                  handlePlay(context, state.duration, playlistState.playlist[0]);
                 }
               }else if(state is PlayerRunPause){
                 context.read<PlayerBloc>().add(const PlayerResumed());
@@ -153,8 +175,8 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                                   ),
                                   child: Slider(
                                     value: timelines,
-                                    max: 100,
-                                    divisions: 100,
+                                    max: maxTimelines,
+                                    divisions: divisions,
                                     onChanged: _timelineChanged
                                   ),
                                 ),

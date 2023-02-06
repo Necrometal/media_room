@@ -25,18 +25,16 @@ class PlaylistBloc extends Bloc<PlaylistEvent, PlaylistState> {
     if(result != null){
       MediaTmp media = MediaTmp(
         name: result.files.single.name,
-        path: result.files.single.path
+        path: result.files.single.path as String
       );
       
       final path = media.path;
 
-      if(path != null){
-        final metadata = await MetadataRetriever.fromFile(File(path));
-        media.artist = metadata.albumArtistName;
-        media.album = metadata.albumName;
-        media.trackDuration = metadata.trackDuration;
-        media.albumArt = metadata.albumArt;
-      }
+      final metadata = await MetadataRetriever.fromFile(File(path));
+      media.artist = metadata.albumArtistName;
+      media.album = metadata.albumName;
+      media.trackDuration = metadata.trackDuration;
+      media.albumArt = metadata.albumArt;
 
       return emit(state.copyWith(
         playlist: List.of(state.playlist)..add(media.copyToReal()),

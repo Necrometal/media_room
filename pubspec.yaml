@@ -39,6 +39,7 @@ dependencies:
   bloc: ^8.1.0
   equatable: ^2.0.5
   flutter_media_metadata: ^1.0.0+1
+  audioplayers: ^3.0.1
 
 dev_dependencies:
   flutter_test:

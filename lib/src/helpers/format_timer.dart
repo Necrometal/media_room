@@ -10,7 +10,8 @@ String formatTimer(int duration) {
 }
 
 double formatTimeline(int duration, int maxDuration) {
-  return double.parse(((duration * 100) / maxDuration).toStringAsFixed(1));
+  if (maxDuration == 0) return 0.0;
+  return double.parse(duration.toStringAsFixed(1));
 }
 
 double formatListItemLine(int duration, int maxDuration) {

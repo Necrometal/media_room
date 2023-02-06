@@ -1,4 +1,3 @@
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,7 +7,7 @@ import 'package:media_room/src/constantes/colors.dart';
 import 'package:media_room/src/pages/media_player.dart';
 import 'package:media_room/src/pages/media_playlist.dart';
 import 'package:media_room/src/pages/member_list.dart';
-import 'package:media_room/src/streamer/ticker.dart';
+import 'package:media_room/src/streamer/audioplayer.dart';
 
 class MediaNavigationBar extends StatefulWidget {
   const MediaNavigationBar({Key? key}) : super(key: key);
@@ -56,7 +55,7 @@ class _MediaNavigationBarState extends State<MediaNavigationBar> {
     return MultiBlocProvider(
       providers: [
         BlocProvider<PlayerBloc>(
-          create: (_) => PlayerBloc(ticker: const Ticker())
+          create: (_) => PlayerBloc(player: Player())
         ),
         BlocProvider<PlaylistBloc>(
           create: (_) => PlaylistBloc()
