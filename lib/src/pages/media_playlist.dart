@@ -63,7 +63,7 @@ class _MediaPlaylistPageState extends State<MediaPlaylistPage> {
             }
 
             void _deleteFile(int i) async {
-              if(listMedia[i] != playerState.current){
+              if(listMedia[i] != current){
                 context.read<PlaylistBloc>().add(MediaDeleted(index: i));
               }else{
                 print('playing');

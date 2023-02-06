@@ -7,6 +7,7 @@ import 'package:media_room/src/constantes/colors.dart';
 import 'package:media_room/src/custom/slider_track.dart';
 import 'package:media_room/src/helpers/checker.dart';
 import 'package:media_room/src/helpers/format_timer.dart';
+import 'package:media_room/src/models/config.dart';
 import 'package:media_room/src/models/media.dart';
 import 'package:media_room/src/widgets/back_button.dart';
 import 'package:media_room/src/widgets/page_container.dart';
@@ -56,6 +57,7 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
             final current = context.select((PlayerBloc bloc) => bloc.state.current);
             final time = context.select((PlayerBloc bloc) => bloc.state.duration);
             final isCompleted = context.select((PlayerBloc bloc) => bloc.isCompleted);
+            final config = context.select((PlayerBloc bloc) => bloc.state.config);
             final duration = formatTimer(time);
             final maxDuration = formatTimer(current?.trackDuration ?? defaultDuration);
             final timelines = formatTimeline(time, current?.trackDuration ?? defaultDuration);
@@ -99,6 +101,24 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
               final item = getPreviousItem(listMedia, current);
               if(item != null) handlePlay(context, 0, item);
             }
+
+            void _toggleConfig(ConfigState type){
+              switch(type){
+                case ConfigState.loop:
+                  context.read<PlayerBloc>().add(
+                    PlayerConfigLoop(loop: !config.loop)
+                  );
+                  break;
+                case ConfigState.random:
+                  context.read<PlayerBloc>().add(
+                    PlayerConfigRandom(random: !config.random)
+                  );
+                  break;
+              }
+            }
+            // print('>>>>>>>>>>>>>>>>>>>>>>>');
+            // print(config.random);
+            // print(config.loop);
 
             return PageContainer(
               child: Scaffold(
@@ -212,14 +232,15 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             IconButton(
-                              icon: const Icon(
-                                // CupertinoIcons.heart,
+                              icon: Icon(
                                 Icons.shuffle,
                                 size: 20,
-                                color: grey,
+                                color: config.random == true ? cyan : grey,
                               ),
                               tooltip: '',
-                              onPressed: () {},
+                              onPressed: () {
+                                _toggleConfig(ConfigState.random);
+                              },
                             ),
                             IconButton(
                               icon: const Icon(
@@ -268,14 +289,16 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                               onPressed: disabled ? null : _next,
                             ),
                             IconButton(
-                              icon: const Icon(
+                              icon: Icon(
                                 // CupertinoIcons.heart,
                                 Icons.sync_sharp,
                                 size: 20,
-                                color: grey,
+                                color: config.loop == true ? cyan : grey,
                               ),
                               tooltip: '',
-                              onPressed: () {},
+                              onPressed: (){
+                                _toggleConfig(ConfigState.loop);
+                              },
                             )
                           ],
                         ),

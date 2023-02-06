@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:media_room/src/bloc/playlist_bloc.dart';
+import 'package:media_room/src/models/config.dart';
 import 'package:media_room/src/models/media.dart';
 import 'package:media_room/src/streamer/audioplayer.dart';
 
@@ -20,13 +20,19 @@ class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
   PlayerBloc({
     required this.player
   }) : 
-  super(const PlayerInitial(_duration, null)) {
+  super(PlayerInitial(
+    _duration, 
+    null, 
+    Config(loop: false, random: false)
+  )) {
     on<PlayerStarted>(_onStarted);
     on<PlayerPaused>(_onPaused);
     on<PlayerResumed>(_onResumed);
     on<PlayerReset>(_onReset);
     on<PlayerGoTo>(_onGoTo);
     on<PlayerTicked>(_onTicked);
+    on<PlayerConfigLoop>(_onConfigLoopChange);
+    on<PlayerConfigRandom>(_onConfigRandomChange);
   }
 
   @override
@@ -39,7 +45,7 @@ class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
   }
 
   Future<void> _onStarted(PlayerStarted event, Emitter<PlayerState> emit) async {
-    emit(PlayerRunInProgress(event.duration, event.current));
+    emit(PlayerRunInProgress(event.duration, event.current, state.config));
     playing?.cancel();
     isCompleted?.cancel();
     await player.stop();
@@ -53,20 +59,20 @@ class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
   void _onPaused(PlayerPaused event, Emitter<PlayerState> emit){
     if(state is PlayerRunInProgress){
       player.pause();
-      emit(PlayerRunPause(state.duration, state.current));
+      emit(PlayerRunPause(state.duration, state.current, state.config));
     }
   }
 
   void _onResumed(PlayerResumed event, Emitter<PlayerState> emit){
     if(state is PlayerRunPause){
       player.resume();
-      emit(PlayerRunInProgress(state.duration, state.current));
+      emit(PlayerRunInProgress(state.duration, state.current, state.config));
     }
   }
 
   void _onReset(PlayerReset event, Emitter<PlayerState> emit){
     player.stop();
-    emit(const PlayerInitial(_duration, null));
+    emit(PlayerInitial(_duration, null, state.config));
   }
 
   void _onGoTo(PlayerGoTo event, Emitter<PlayerState> emit){
@@ -75,6 +81,44 @@ class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
   }
 
   void _onTicked(PlayerTicked event, Emitter<PlayerState> emit){
-    emit(PlayerRunInProgress(event.duration, state.current));
+    emit(PlayerRunInProgress(event.duration, state.current, state.config));
+  }
+
+  void _onConfigLoopChange(PlayerConfigLoop event, Emitter<PlayerState> emit){
+    Config config = Config(
+      loop: event.loop,
+      random: state.config.random
+    );
+    emitConfigState(
+      config,
+      state,
+      emit
+    );
+  }
+
+  void _onConfigRandomChange(PlayerConfigRandom event, Emitter<PlayerState> emit){
+    Config config = Config(
+      random: event.random,
+      loop: state.config.loop
+    );
+    emitConfigState(
+      config,
+      state,
+      emit
+    );
+  }
+}
+
+void emitConfigState(
+  Config config,
+  PlayerState state,
+  Emitter<PlayerState> emit
+){
+  if(state is PlayerInitial){
+    emit(PlayerInitial(state.duration, state.current, config));
+  }else if(state is PlayerRunInProgress){
+    emit(PlayerRunInProgress(state.duration, state.current, config));
+  }else if(state is PlayerRunPause){
+    emit(PlayerRunPause(state.duration, state.current, config));
   }
 }

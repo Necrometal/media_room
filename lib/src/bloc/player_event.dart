@@ -37,3 +37,17 @@ class PlayerTicked extends PlayerEvent {
   const PlayerTicked({required this.duration});
   final int duration;
 }
+
+class PlayerConfigLoop extends PlayerEvent {
+  const PlayerConfigLoop({ 
+    required this.loop 
+  });
+  final bool loop;
+}
+
+class PlayerConfigRandom extends PlayerEvent {
+  const PlayerConfigRandom({ 
+    required this.random 
+  });
+  final bool random;
+}
