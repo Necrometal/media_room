@@ -38,10 +38,11 @@ class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
     return super.close();
   }
 
-  void _onStarted(PlayerStarted event, Emitter<PlayerState> emit){
+  Future<void> _onStarted(PlayerStarted event, Emitter<PlayerState> emit) async {
     emit(PlayerRunInProgress(event.duration, event.current));
     playing?.cancel();
     isCompleted?.cancel();
+    await player.stop();
     player.play(event.current.path);
     playing = player.listenPlaying().listen((e){
       add(PlayerTicked(duration: e.inMilliseconds));

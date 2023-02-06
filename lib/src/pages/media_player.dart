@@ -5,6 +5,7 @@ import 'package:media_room/src/bloc/player_bloc.dart';
 import 'package:media_room/src/bloc/playlist_bloc.dart';
 import 'package:media_room/src/constantes/colors.dart';
 import 'package:media_room/src/custom/slider_track.dart';
+import 'package:media_room/src/helpers/checker.dart';
 import 'package:media_room/src/helpers/format_timer.dart';
 import 'package:media_room/src/models/media.dart';
 import 'package:media_room/src/widgets/back_button.dart';
@@ -22,6 +23,7 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
   double timeline = 0.0;
   bool played = false;
   static int defaultDuration = 0;
+  late bool disabled;
 
   void _like() {
     setState(() {
@@ -50,6 +52,7 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
         return BlocBuilder<PlayerBloc, PlayerState>(
           buildWhen: (prev, state) => prev.runtimeType != state.runtimeType,
           builder: (context, state) {
+            final listMedia = context.select((PlaylistBloc bloc) => bloc.state.playlist);
             final current = context.select((PlayerBloc bloc) => bloc.state.current);
             final time = context.select((PlayerBloc bloc) => bloc.state.duration);
             final isCompleted = context.select((PlayerBloc bloc) => bloc.isCompleted);
@@ -58,6 +61,8 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
             final timelines = formatTimeline(time, current?.trackDuration ?? defaultDuration);
             final maxTimelines = double.parse((current?.trackDuration ?? defaultDuration).toStringAsFixed(1));
             final divisions = current?.trackDuration;
+
+            disabled = listMedia.isNotEmpty ? false : true;
 
             void _handleCompleted(e){
               if(playlistState.playlist.last == current){
@@ -76,13 +81,23 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
             void _play(){
               if(state is PlayerInitial){
                 if(playlistState.playlist.isNotEmpty){
-                  handlePlay(context, state.duration, playlistState.playlist[0]);
+                  handlePlay(context, 0, playlistState.playlist[0]);
                 }
               }else if(state is PlayerRunPause){
                 context.read<PlayerBloc>().add(const PlayerResumed());
               }else if(state is PlayerRunInProgress){
                 context.read<PlayerBloc>().add(const PlayerPaused());
               }
+            }
+
+            void _next(){
+              final item = getNextItem(listMedia, current);
+              if(item != null) handlePlay(context, 0, item);
+            }
+
+            void _previous(){
+              final item = getPreviousItem(listMedia, current);
+              if(item != null) handlePlay(context, 0, item);
             }
 
             return PageContainer(
@@ -214,7 +229,7 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                                 color: Colors.white,
                               ),
                               tooltip: '',
-                              onPressed: () {},
+                              onPressed: disabled ? null :  _previous,
                             ),
                             Container(
                               height: (MediaQuery.of(context).size.width) / 5,
@@ -239,7 +254,7 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                                   color: Colors.black,
                                 ),
                                 tooltip: '',
-                                onPressed: _play,
+                                onPressed: disabled ? null :  _play,
                               ),
                             ),
                             IconButton(
@@ -250,7 +265,7 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                                 color: Colors.white,
                               ),
                               tooltip: '',
-                              onPressed: () {},
+                              onPressed: disabled ? null : _next,
                             ),
                             IconButton(
                               icon: const Icon(
