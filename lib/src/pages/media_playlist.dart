@@ -53,17 +53,22 @@ class _MediaPlaylistPageState extends State<MediaPlaylistPage> {
         return BlocBuilder<PlaylistBloc, PlaylistState>(
           buildWhen: (prev, state) => prev.runtimeType != state.runtimeType,
           builder: (context, playlistState) {
+
+            listMedia = context.select((PlaylistBloc bloc) => bloc.state.playlist);
+            action = context.select((PlaylistBloc bloc) => bloc.state.action);
+            current = context.select((PlayerBloc bloc) => bloc.state.current);
+
             void _addFile() {
               context.read<PlaylistBloc>().add(MediaPicked());
             }
 
             void _deleteFile(int i) async {
-              context.read<PlaylistBloc>().add(MediaDeleted(index: i));
+              if(listMedia[i] != playerState.current){
+                context.read<PlaylistBloc>().add(MediaDeleted(index: i));
+              }else{
+                print('playing');
+              }
             }
-
-            listMedia = context.select((PlaylistBloc bloc) => bloc.state.playlist);
-            action = context.select((PlaylistBloc bloc) => bloc.state.action);
-            current = context.select((PlayerBloc bloc) => bloc.state.current);
 
             return PageContainer(
               child: Scaffold(
