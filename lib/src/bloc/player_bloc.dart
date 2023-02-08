@@ -76,13 +76,15 @@ class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
   }
 
   void _onGoTo(PlayerGoTo event, Emitter<PlayerState> emit){
-    add(PlayerGoTo(duration: event.duration));
-    print(event.duration);
-    // player.seek(Duration(milliseconds: event.duration));
+    player.seek(Duration(milliseconds: event.duration));
   }
 
   void _onTicked(PlayerTicked event, Emitter<PlayerState> emit){
-    emit(PlayerRunInProgress(event.duration, state.current, state.config));
+    if(state is PlayerRunInProgress){
+      emit(PlayerRunInProgress(event.duration, state.current, state.config));
+    }else{
+      emit(PlayerRunPause(event.duration, state.current, state.config));
+    }
   }
 
   void _onConfigLoopChange(PlayerConfigLoop event, Emitter<PlayerState> emit){
@@ -121,5 +123,19 @@ void emitConfigState(
     emit(PlayerRunInProgress(state.duration, state.current, config));
   }else if(state is PlayerRunPause){
     emit(PlayerRunPause(state.duration, state.current, config));
+  }
+}
+
+void emitGoToPosition(
+  Player player,
+  Emitter<PlayerState> emit,
+  PlayerState state,
+  int duration
+){
+  player.seek(Duration(milliseconds: duration));
+  if(state is PlayerRunInProgress){
+    emit(PlayerRunInProgress(state.duration, state.current, state.config));
+  }else if(state is PlayerRunPause){
+    emit(PlayerRunPause(duration, state.current, state.config));
   }
 }

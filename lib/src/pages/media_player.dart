@@ -22,8 +22,6 @@ class MediaPlayerPage extends StatefulWidget {
 
 class _MediaPlayerPageState extends State<MediaPlayerPage> {
   bool liked = false;
-  double timeline = 0.0;
-  bool played = false;
   static int defaultDuration = 0;
   late bool disabled;
 
@@ -118,30 +116,12 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
             // handle timeline changing
             void _timelineChanging(double value) {
               if(current != null){
-                setState(() {
-                  timeline = value;
-                });
-              }
-            }
-
-            // handle timeline change end
-            void _timelineChanged(double value){
-              if(current != null){
-                // print('teest');
                 context.read<PlayerBloc>().add(
                   PlayerGoTo(duration: value.round())
                 );
-                // setState(() {
-                //   timeline = 0.0;
-                // });
-                // SchedulerBinding.instance.addPostFrameCallback((_) {
-                //   context.read<PlayerBloc>().add(
-                //     PlayerGoTo(duration: value.round())
-                //   );
-                // });
               }
             }
-
+            
             return PageContainer(
               child: Scaffold(
                 backgroundColor: Colors.transparent,
@@ -233,12 +213,10 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                                   child: Slider(
                                     // if timeline default has value use it for reference ui
                                     // else use the playing timeline value
-                                    value: timeline != 0.0 ? timeline : timelines, 
+                                    value: timelines, 
                                     max: maxTimelines,
                                     divisions: divisions,
-                                    onChanged: (double value){},
-                                    // onChanged: _timelineChanging,
-                                    onChangeEnd: _timelineChanged,
+                                    onChanged: _timelineChanging
                                   ),
                                 ),
                               ),
