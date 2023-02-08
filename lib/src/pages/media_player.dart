@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:media_room/src/bloc/player_bloc.dart';
 import 'package:media_room/src/bloc/playlist_bloc.dart';
@@ -32,12 +33,6 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
     });
   }
 
-  void _timelineChanged(double value) {
-    setState(() {
-      timeline = value;
-    });
-  }
-
   void handlePlay(BuildContext ctx, int duration, dynamic current){
     ctx.read<PlayerBloc>().add(PlayerStarted(
       duration: duration,
@@ -58,16 +53,17 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
             final time = context.select((PlayerBloc bloc) => bloc.state.duration);
             final isCompleted = context.select((PlayerBloc bloc) => bloc.isCompleted);
             final config = context.select((PlayerBloc bloc) => bloc.state.config);
+            final playingState = context.select((PlayerBloc bloc) => bloc.state);
             final duration = formatTimer(time);
             final maxDuration = formatTimer(current?.trackDuration ?? defaultDuration);
             final timelines = formatTimeline(time, current?.trackDuration ?? defaultDuration);
             final maxTimelines = double.parse((current?.trackDuration ?? defaultDuration).toStringAsFixed(1));
             final divisions = current?.trackDuration;
-
             disabled = listMedia.isNotEmpty ? false : true;
 
-            void _handleCompleted(e){
-              if(playlistState.playlist.last == current){
+            // listen if playing is completed
+            isCompleted?.onData((e){
+              if(listMedia.last == current){
                 context.read<PlayerBloc>().add(const PlayerReset());
               }else{
                 handlePlay(
@@ -76,32 +72,34 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                   playlistState.playlist[playlistState.playlist.indexOf(current as Media) + 1]
                 );
               }
-            }
+            });
 
-            isCompleted?.onData(_handleCompleted);
-
+            // handle press play/pause button
             void _play(){
-              if(state is PlayerInitial){
-                if(playlistState.playlist.isNotEmpty){
+              if(playingState is PlayerInitial){
+                if(listMedia.isNotEmpty){
                   handlePlay(context, 0, playlistState.playlist[0]);
                 }
-              }else if(state is PlayerRunPause){
+              }else if(playingState is PlayerRunPause){
                 context.read<PlayerBloc>().add(const PlayerResumed());
-              }else if(state is PlayerRunInProgress){
+              }else if(playingState is PlayerRunInProgress){
                 context.read<PlayerBloc>().add(const PlayerPaused());
               }
             }
 
+            // handle press next button
             void _next(){
               final item = getNextItem(listMedia, current);
               if(item != null) handlePlay(context, 0, item);
             }
 
+            // handle press previous button
             void _previous(){
               final item = getPreviousItem(listMedia, current);
               if(item != null) handlePlay(context, 0, item);
             }
 
+            // handle press config button
             void _toggleConfig(ConfigState type){
               switch(type){
                 case ConfigState.loop:
@@ -116,9 +114,33 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                   break;
               }
             }
-            // print('>>>>>>>>>>>>>>>>>>>>>>>');
-            // print(config.random);
-            // print(config.loop);
+            
+            // handle timeline changing
+            void _timelineChanging(double value) {
+              if(current != null){
+                setState(() {
+                  timeline = value;
+                });
+              }
+            }
+
+            // handle timeline change end
+            void _timelineChanged(double value){
+              if(current != null){
+                // print('teest');
+                context.read<PlayerBloc>().add(
+                  PlayerGoTo(duration: value.round())
+                );
+                // setState(() {
+                //   timeline = 0.0;
+                // });
+                // SchedulerBinding.instance.addPostFrameCallback((_) {
+                //   context.read<PlayerBloc>().add(
+                //     PlayerGoTo(duration: value.round())
+                //   );
+                // });
+              }
+            }
 
             return PageContainer(
               child: Scaffold(
@@ -209,10 +231,14 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                                     overlayShape: const RoundSliderOverlayShape(overlayRadius: 15.0),
                                   ),
                                   child: Slider(
-                                    value: timelines,
+                                    // if timeline default has value use it for reference ui
+                                    // else use the playing timeline value
+                                    value: timeline != 0.0 ? timeline : timelines, 
                                     max: maxTimelines,
                                     divisions: divisions,
-                                    onChanged: _timelineChanged
+                                    onChanged: (double value){},
+                                    // onChanged: _timelineChanging,
+                                    onChangeEnd: _timelineChanged,
                                   ),
                                 ),
                               ),

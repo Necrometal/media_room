@@ -76,8 +76,9 @@ class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
   }
 
   void _onGoTo(PlayerGoTo event, Emitter<PlayerState> emit){
-    add(PlayerStarted(duration: event.duration, current: state.current));
-    player.seek(Duration(milliseconds: event.duration));
+    add(PlayerGoTo(duration: event.duration));
+    print(event.duration);
+    // player.seek(Duration(milliseconds: event.duration));
   }
 
   void _onTicked(PlayerTicked event, Emitter<PlayerState> emit){
