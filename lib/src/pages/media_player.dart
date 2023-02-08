@@ -59,19 +59,6 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
             final divisions = current?.trackDuration;
             disabled = listMedia.isNotEmpty ? false : true;
 
-            // listen if playing is completed
-            isCompleted?.onData((e){
-              if(listMedia.last == current){
-                context.read<PlayerBloc>().add(const PlayerReset());
-              }else{
-                handlePlay(
-                  context, 
-                  0, 
-                  playlistState.playlist[playlistState.playlist.indexOf(current as Media) + 1]
-                );
-              }
-            });
-
             // handle press play/pause button
             void _play(){
               if(playingState is PlayerInitial){
@@ -121,7 +108,24 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                 );
               }
             }
-            
+
+            // listen if playing is completed
+            isCompleted?.onData((e){
+              if(listMedia.last == current){
+                if(config.loop == false){
+                  context.read<PlayerBloc>().add(const PlayerReset());
+                }else{
+                  _next();
+                }
+              }else{
+                handlePlay(
+                  context, 
+                  0, 
+                  playlistState.playlist[playlistState.playlist.indexOf(current as Media) + 1]
+                );
+              }
+            });
+
             return PageContainer(
               child: Scaffold(
                 backgroundColor: Colors.transparent,
