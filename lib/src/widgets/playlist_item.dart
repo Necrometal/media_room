@@ -36,6 +36,7 @@ class PlaylistItem extends StatelessWidget {
             final time = context.select((PlayerBloc bloc) => bloc.state.duration);
             final timelines = current == item ? formatListItemLine(time, item.trackDuration as int) : 0.0;
             final maxDuration = formatTimer(item.trackDuration ?? 0);
+            // final playingSystem = context.select((PlaylistBloc bloc) => bloc.playingSystem);
 
             void _play(Media item){
               if(current != item){

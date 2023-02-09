@@ -1,6 +1,6 @@
+import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:media_room/src/bloc/player_bloc.dart';
 import 'package:media_room/src/bloc/playlist_bloc.dart';
@@ -52,6 +52,7 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
             final isCompleted = context.select((PlayerBloc bloc) => bloc.isCompleted);
             final config = context.select((PlayerBloc bloc) => bloc.state.config);
             final playingState = context.select((PlayerBloc bloc) => bloc.state);
+            final playingSystem = context.select((PlaylistBloc bloc) => bloc.playingSystem);
             final duration = formatTimer(time);
             final maxDuration = formatTimer(current?.trackDuration ?? defaultDuration);
             final timelines = formatTimeline(time, current?.trackDuration ?? defaultDuration);
@@ -63,7 +64,9 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
             void _play(){
               if(playingState is PlayerInitial){
                 if(listMedia.isNotEmpty){
-                  handlePlay(context, 0, playlistState.playlist[0]);
+                  // Media media = listMedia[0];
+                  Media media = playingSystem.getNextSong();
+                  handlePlay(context, 0, media);
                 }
               }else if(playingState is PlayerRunPause){
                 context.read<PlayerBloc>().add(const PlayerResumed());
@@ -74,14 +77,22 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
 
             // handle press next button
             void _next(){
-              final item = getNextItem(listMedia, current);
-              if(item != null) handlePlay(context, 0, item);
+              // final item = getNextItem(listMedia, current, config.random);
+              // if(item != null) handlePlay(context, 0, item);
+              if(listMedia.isNotEmpty){
+                final item = playingSystem.getNextSong();
+                handlePlay(context, 0, item);
+              }
             }
 
             // handle press previous button
             void _previous(){
-              final item = getPreviousItem(listMedia, current);
-              if(item != null) handlePlay(context, 0, item);
+              // final item = getPreviousItem(listMedia, current, config.random);
+              // if(item != null) handlePlay(context, 0, item);
+              if(listMedia.isNotEmpty){
+                final item = playingSystem.getPreviousSong();
+                handlePlay(context, 0, item);
+              }
             }
 
             // handle press config button
@@ -91,11 +102,19 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                   context.read<PlayerBloc>().add(
                     PlayerConfigLoop(loop: !config.loop)
                   );
+                  playingSystem.updateConfig(Config(
+                    loop: !config.loop,
+                    random: config.random
+                  ));
                   break;
                 case ConfigState.random:
                   context.read<PlayerBloc>().add(
                     PlayerConfigRandom(random: !config.random)
                   );
+                  playingSystem.updateConfig(Config(
+                    loop: config.loop,
+                    random: !config.random
+                  ));
                   break;
               }
             }
