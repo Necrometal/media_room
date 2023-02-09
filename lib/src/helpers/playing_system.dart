@@ -14,6 +14,7 @@ class PlayingSystem {
   Media? current;
   Random random = Random();
 
+  // get first media to play
   Media getFirstPlay(Media media){
     looping.clear();
     current = media;
@@ -21,6 +22,7 @@ class PlayingSystem {
     return media;
   }
 
+  // get nest song
   Media getNextSong(){
     Media nextSong;
     List<Media> list;
@@ -81,6 +83,7 @@ class PlayingSystem {
     return nextSong;
   }
 
+  // get previous song
   Media getPreviousSong(){
     Media prevSong;
 
@@ -131,6 +134,7 @@ class PlayingSystem {
 
   void removeSong(Media media){
     list.remove(media);
+    looping.remove(media);
   }
 
   void updateConfig(Config config){
