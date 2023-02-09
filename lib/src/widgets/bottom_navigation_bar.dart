@@ -1,9 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:media_room/src/bloc/player_bloc.dart';
+import 'package:media_room/src/bloc/playlist_bloc.dart';
 import 'package:media_room/src/constantes/colors.dart';
 import 'package:media_room/src/pages/media_player.dart';
 import 'package:media_room/src/pages/media_playlist.dart';
 import 'package:media_room/src/pages/member_list.dart';
+import 'package:media_room/src/streamer/audioplayer.dart';
 
 class MediaNavigationBar extends StatefulWidget {
   const MediaNavigationBar({Key? key}) : super(key: key);
@@ -48,61 +52,71 @@ class _MediaNavigationBarState extends State<MediaNavigationBar> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBody: true,
-      body: SizedBox.expand(
-        child: PageView(
-          controller: _pageController,
-          onPageChanged: (index) {
-            setState(() {
-              _selectedIndex = index;
-            });
-          },
-          children: _widgetOptions,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<PlayerBloc>(
+          create: (_) => PlayerBloc(player: Player())
         ),
-      ),
-      bottomNavigationBar: Theme(
-        data: ThemeData(
-          highlightColor: Colors.transparent,
-          splashColor: Colors.transparent,
-          hoverColor: Colors.transparent,
+        BlocProvider<PlaylistBloc>(
+          create: (_) => PlaylistBloc()
+        )
+      ],
+      child: Scaffold(
+        extendBody: true,
+        body: SizedBox.expand(
+          child: PageView(
+            controller: _pageController,
+            onPageChanged: (index) {
+              setState(() {
+                _selectedIndex = index;
+              });
+            },
+            children: _widgetOptions,
+          ),
         ),
-        child: BottomNavigationBar(
-          currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
-          backgroundColor: Colors.transparent,
-          elevation: 10,
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Padding(
-                padding: EdgeInsets.only(top: 0),
-                child: Icon(CupertinoIcons.double_music_note)
+        bottomNavigationBar: Theme(
+          data: ThemeData(
+            highlightColor: Colors.transparent,
+            splashColor: Colors.transparent,
+            hoverColor: Colors.transparent,
+          ),
+          child: BottomNavigationBar(
+            currentIndex: _selectedIndex,
+            onTap: _onItemTapped,
+            backgroundColor: Colors.transparent,
+            elevation: 10,
+            items: const <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: Padding(
+                  padding: EdgeInsets.only(top: 0),
+                  child: Icon(CupertinoIcons.double_music_note)
+                ),
+                label: '',
+                
               ),
-              label: '',
-              
-            ),
-            BottomNavigationBarItem(
-              icon: Padding(
-                padding: EdgeInsets.only(top: 0),
-                child: Icon(CupertinoIcons.list_bullet)
+              BottomNavigationBarItem(
+                icon: Padding(
+                  padding: EdgeInsets.only(top: 0),
+                  child: Icon(CupertinoIcons.list_bullet)
+                ),
+                label: '',
               ),
-              label: '',
-            ),
-            BottomNavigationBarItem(
-              icon: Padding(
-                padding: EdgeInsets.only(top: 0),
-                child: Icon(CupertinoIcons.person_2)
+              BottomNavigationBarItem(
+                icon: Padding(
+                  padding: EdgeInsets.only(top: 0),
+                  child: Icon(CupertinoIcons.person_2)
+                ),
+                label: '',
               ),
-              label: '',
-            ),
-          ],
-          selectedItemColor: cyan,
-          unselectedItemColor: grey,
-          type: BottomNavigationBarType.fixed,
-          showSelectedLabels: false,
-          showUnselectedLabels: false,
+            ],
+            selectedItemColor: cyan,
+            unselectedItemColor: grey,
+            type: BottomNavigationBarType.fixed,
+            showSelectedLabels: false,
+            showUnselectedLabels: false,
+          ),
         ),
-      ),
+      )
     );
   }
 }
