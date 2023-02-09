@@ -57,6 +57,7 @@ class PlaylistBloc extends Bloc<PlaylistEvent, PlaylistState> {
     final List<Media> playlist = List.of(state.playlist);
     
     final removedItem = playlist.removeAt(event.index);
+    playingSystem.removeSong(removedItem);
 
     return emit(state.copyWith(
       playlist: List.of(playlist),
