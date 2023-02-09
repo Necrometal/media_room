@@ -5,13 +5,18 @@ import 'package:equatable/equatable.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:media_room/src/constantes/enum.dart';
+import 'package:media_room/src/helpers/playing_system.dart';
 import 'package:media_room/src/models/media.dart';
 
 part 'playlist_event.dart';
 part 'playlist_state.dart';
 
 class PlaylistBloc extends Bloc<PlaylistEvent, PlaylistState> {
-  PlaylistBloc() : super(const PlaylistState()) {
+  final PlayingSystem playingSystem;
+  
+  PlaylistBloc({
+    required this.playingSystem
+  }) : super(const PlaylistState()) {
     on<MediaPicked>(_onPicked);
     on<MediaDeleted>(_onDeleted);
   }
@@ -36,6 +41,8 @@ class PlaylistBloc extends Bloc<PlaylistEvent, PlaylistState> {
       media.trackDuration = metadata.trackDuration;
       media.albumArt = metadata.albumArt;
 
+      playingSystem.addNewSong(media.copyToReal());
+
       return emit(state.copyWith(
         playlist: List.of(state.playlist)..add(media.copyToReal()),
         action: {
@@ -50,6 +57,7 @@ class PlaylistBloc extends Bloc<PlaylistEvent, PlaylistState> {
     final List<Media> playlist = List.of(state.playlist);
     
     final removedItem = playlist.removeAt(event.index);
+    playingSystem.removeSong(removedItem);
 
     return emit(state.copyWith(
       playlist: List.of(playlist),

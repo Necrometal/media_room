@@ -36,8 +36,10 @@ class PlaylistItem extends StatelessWidget {
             final time = context.select((PlayerBloc bloc) => bloc.state.duration);
             final timelines = current == item ? formatListItemLine(time, item.trackDuration as int) : 0.0;
             final maxDuration = formatTimer(item.trackDuration ?? 0);
+            final playingSystem = context.select((PlaylistBloc bloc) => bloc.playingSystem);
 
             void _play(Media item){
+              playingSystem.getFirstPlay(item);
               if(current != item){
                 context.read<PlayerBloc>().add(PlayerStarted(
                   duration: 0,
@@ -58,7 +60,7 @@ class PlaylistItem extends StatelessWidget {
             }
 
             return Card(
-              color: cyantranparent,
+              color: current == item ? cyan : cyantranparent,
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 10,

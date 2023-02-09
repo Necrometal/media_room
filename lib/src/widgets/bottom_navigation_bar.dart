@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:media_room/src/bloc/player_bloc.dart';
 import 'package:media_room/src/bloc/playlist_bloc.dart';
 import 'package:media_room/src/constantes/colors.dart';
+import 'package:media_room/src/helpers/playing_system.dart';
 import 'package:media_room/src/pages/media_player.dart';
 import 'package:media_room/src/pages/media_playlist.dart';
 import 'package:media_room/src/pages/member_list.dart';
@@ -58,7 +59,7 @@ class _MediaNavigationBarState extends State<MediaNavigationBar> {
           create: (_) => PlayerBloc(player: Player())
         ),
         BlocProvider<PlaylistBloc>(
-          create: (_) => PlaylistBloc()
+          create: (_) => PlaylistBloc(playingSystem: PlayingSystem(list: []))
         )
       ],
       child: Scaffold(

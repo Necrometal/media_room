@@ -4,8 +4,13 @@ class Config {
     required this.loop
   });
 
-  final bool random;
-  final bool loop;
+  bool random;
+  bool loop;
+
+  @override
+  String toString() {
+    return 'Config{loop: $loop, random: $random}';
+  }
 }
 
 enum ConfigState {
